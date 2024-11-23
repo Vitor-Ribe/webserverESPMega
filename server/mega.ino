@@ -16,6 +16,35 @@ void setup(){
   Serial.println("\nMega inicializado!");
 }
 
+float calcularPontoDeOrvalho(float temperatura, float umidade) {
+  double a = 17.27;
+  double b = 237.7;
+  double alfa = (a * temperatura) / (b + temperatura) + log(umidade / 100.0);
+  return (b * alfa) / (a - alfa);
+}
+
+String determinarStatus(float temperatura, float umidade){
+  String a, b;
+  
+  if (temperatura > 16 && temperatura < 30){
+    a = "\033[32mTemperatura agradável\033[0m";
+  } else if (temperatura <= 16){
+      a = "\033[34mFrio\033[0m";
+    } else if (temperatura > 30){
+        a = "\033[31mQuente\033[0m";
+      }
+
+  if (umidade >= 40 && umidade < 70){
+    b = "\033[32mUmidade agradável\033[0m";
+  } else if (umidade >= 70){
+      b = "\033[34mÚmido\033[0m";
+    } else if (umidade < 40){
+       b ="\033[33mSeco\033[0m";
+    }
+
+  return a + " e " + b;
+}
+
 void loop() {
   if (Serial3.available()) {
     char data = Serial3.read();
@@ -28,25 +57,27 @@ void loop() {
 
           if (msg == "ligar lampada") {
             digitalWrite(RELEPIN, HIGH);
-            Serial3.println("Lâmpada ligada!");
+            Serial3.println("\033[32mLâmpada ligada!\033[0m");
             
           } else if (msg == "desligar lampada") {
             digitalWrite(RELEPIN, LOW);
-            Serial3.println("Lâmpada desligada!");
+            Serial3.println("\033[31mLâmpada desligada!\033[0m");
             
           } else if (msg == "temperatura") {
             float temp = dht.readTemperature();
             float umid = dht.readHumidity();
+            float pontoOrvalho = calcularPontoDeOrvalho(temp, umid);
+            String status = determinarStatus(temp, umid);
 
             if(isnan(temp) || isnan(umid))
-              Serial3.println("\nErro ao receber dados do sensor DHT11!");
+              Serial3.println("\033[31mErro ao receber dados do sensor DHT11!\033[0m");
             else
-              Serial3.println("Temperatura: " + String(temp) + " °C\nUmidade: " + String(umid) + " %");
+              Serial3.println("Temperatura: " + String(temp) + " °C\nUmidade: " + String(umid) + " %\nPonto de Orvalho " + String(pontoOrvalho) + " °C\nStatus: " + String(status));
           
           } else if(msg.startsWith(".") || msg == "ESP inicializado!" || msg.startsWith("192") || msg.startsWith("IP")) {
             Serial.println(msg);
           } else{
-            Serial3.println("Comando inválido!");
+            Serial3.println("\033[33mComando inválido!\033[0m");
           }
           msg = "";
       }
