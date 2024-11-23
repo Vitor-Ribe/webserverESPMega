@@ -2,7 +2,7 @@
 WiFiServer server(80);
 
 void setup() {
-  Serial.begin(9600);  // Comunicação com o Mega
+  Serial.begin(57600);  // Comunicação com o Mega
   WiFi.begin("ssid", "senha");
   while (WiFi.status() != WL_CONNECTED) {
     Serial.print(".");
@@ -26,7 +26,7 @@ void loop() {
     // Aguarda resposta do Mega
     String response = "";
     unsigned long startTime = millis();
-    while (millis() - startTime < 2000) {  // Timeout de 2 segundos
+    while (millis() - startTime < 500) {  // Timeout de 1/2 segundos
       if (Serial.available()) {
         response += char(Serial.read());
       }
