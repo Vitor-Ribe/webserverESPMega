@@ -1,6 +1,5 @@
 #include <Adafruit_Sensor.h>
 #include <DHT.h>
-#include <DHT_U.h>
 
 #define DHTPIN 11
 #define RELEPIN 13
@@ -21,25 +20,42 @@ void loop() {
   if (Serial3.available()) {
     char data = Serial3.read();
     msg += data;
+    Serial.println("teste " + msg);
+    
+    if (data == '\n' || data == '\r'){
+      msg.trim(); // remove espaços no inicio e fim
 
-    // Verifica se a mensagem completa foi recebida
-    if (data == '\n' || data == '\r') {
-      msg.trim();  // Remove espaços e caracteres extras no início/fim
-      if (msg == "ligar lampada") {
-        digitalWrite(RELEPIN, HIGH);
-        Serial3.println("Lâmpada ligada!");
-      } else if (msg == "desligar lampada") {
-        digitalWrite(RELEPIN, LOW);
-        Serial3.println("Lâmpada desligada!");
-      } else if (msg == "temperatura") {
-        float temp = dht.readTemperature();
-        float umid = dht.readHumidity();
-        Serial3.println("Temperatura: " + String(temp) + " °C\nUmidade: " + String(umid) + " %");
+      if(msg.length() > 0){
+          Serial.println("Mensagem recebida pelo mega: " + msg);
 
-      } else {
-        Serial3.println("Comando inválido!");
+          if (msg == "ligar lampada") {
+            digitalWrite(RELEPIN, HIGH);
+            Serial3.println("Lâmpada ligada!");
+            Serial.println("Lâmpada ligada!");
+            
+          } else if (msg == "desligar lampada") {
+            digitalWrite(RELEPIN, LOW);
+            Serial3.println("Lâmpada desligada!");
+            Serial.println("Lâmpada desligada!");
+            
+          } else if (msg == "temperatura") {
+            float temp = dht.readTemperature();
+            float umid = dht.readHumidity();
+
+            if(isnan(temp) || isnan(umid)){
+              Serial3.println("\nErro ao receber dados do sensor DHT11!");
+              Serial.println("\nErro ao receber dados do sensor DHT11!");
+            } else{
+              Serial3.println("Temperatura: " + String(temp) + " °C\nUmidade: " + String(umid) + " %");
+              Serial.println("Temperatura: " + String(temp) + " °C\nUmidade: " + String(umid) + " %");
+            }
+          } else if( !msg.startsWith(".") && msg != "ESP inicializado!" && !msg.startsWith("192") && !msg.startsWith("IP")) {
+            Serial3.println("Comando inválido!");
+            Serial.println("Comando inválido!");
+          }
+          msg = "";
       }
-      msg = "";  // Limpa a mensagem após o processamento
     }
   }
+  delay(50);
 }
