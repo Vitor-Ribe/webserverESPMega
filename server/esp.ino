@@ -3,7 +3,7 @@ WiFiServer server(80);
 
 void setup() {
   Serial.begin(57600);  // Comunicação com o Mega
-  WiFi.begin("ssid", "senha");
+  WiFi.begin("MICROTELL-CASA-2G", "ribeiro.23");
   while (WiFi.status() != WL_CONNECTED) {
     Serial.print(".");
     delay(1000);
