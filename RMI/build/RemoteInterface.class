@@ -1,0 +1,7 @@
+// Source code is decompiled from a .class file using FernFlower decompiler.
+import java.rmi.Remote;
+import java.rmi.RemoteException;
+
+public interface RemoteInterface extends Remote {
+   String enviarComando(String var1) throws RemoteException;
+}
