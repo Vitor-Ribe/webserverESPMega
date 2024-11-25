@@ -1,0 +1,72 @@
+// Source code is decompiled from a .class file using FernFlower decompiler.
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
+
+public class Server {
+   public Server() {
+   }
+
+   public static void main(String[] var0) {
+      short var1 = 8080;
+
+      try {
+         ServerSocket var2 = new ServerSocket(var1);
+
+         try {
+            System.out.println("Servidor aguardando conex\u00f5es na porta " + var1);
+            Socket var3 = var2.accept();
+
+            try {
+               BufferedReader var4 = new BufferedReader(new InputStreamReader(var3.getInputStream()));
+               PrintWriter var5 = new PrintWriter(var3.getOutputStream(), true);
+
+               String var6;
+               while((var6 = var4.readLine()) != null) {
+                  System.out.println("Comando recebido: " + var6);
+                  if (var6.equals("ligar lampada")) {
+                     System.out.println("L\u00e2mpada ligada!");
+                     var5.println("L\u00e2mpada ligada!");
+                  } else if (var6.equals("temperatura")) {
+                     String var7 = "Temperatura: 25 \u00b0C";
+                     String var8 = "Umidade: 60%";
+                     var5.println(var7 + "\n" + var8);
+                  } else {
+                     var5.println("Comando inv\u00e1lido!");
+                  }
+               }
+            } catch (Throwable var11) {
+               if (var3 != null) {
+                  try {
+                     var3.close();
+                  } catch (Throwable var10) {
+                     var11.addSuppressed(var10);
+                  }
+               }
+
+               throw var11;
+            }
+
+            if (var3 != null) {
+               var3.close();
+            }
+         } catch (Throwable var12) {
+            try {
+               var2.close();
+            } catch (Throwable var9) {
+               var12.addSuppressed(var9);
+            }
+
+            throw var12;
+         }
+
+         var2.close();
+      } catch (IOException var13) {
+         System.err.println("Erro de comunica\u00e7\u00e3o: " + var13.getMessage());
+      }
+
+   }
+}
