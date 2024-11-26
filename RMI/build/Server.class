@@ -3,69 +3,90 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.ServerSocket;
 import java.net.Socket;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 
-public class Server {
-   public Server() {
+public class ServidorRMI extends UnicastRemoteObject implements InterfaceServidor {
+   private static final String ESP_IP = "192.168.98.36";
+   private static final int ESP_PORT = 80;
+
+   protected ServidorRMI() throws RemoteException {
    }
 
-   public static void main(String[] var0) {
-      short var1 = 8080;
-
+   public String enviarComando(String var1) throws RemoteException {
       try {
-         ServerSocket var2 = new ServerSocket(var1);
+         Socket var2 = new Socket("192.168.98.36", 80);
 
+         String var7;
          try {
-            System.out.println("Servidor aguardando conex\u00f5es na porta " + var1);
-            Socket var3 = var2.accept();
+            PrintWriter var3 = new PrintWriter(var2.getOutputStream(), true);
 
             try {
-               BufferedReader var4 = new BufferedReader(new InputStreamReader(var3.getInputStream()));
-               PrintWriter var5 = new PrintWriter(var3.getOutputStream(), true);
+               BufferedReader var4 = new BufferedReader(new InputStreamReader(var2.getInputStream()));
 
-               String var6;
-               while((var6 = var4.readLine()) != null) {
-                  System.out.println("Comando recebido: " + var6);
-                  if (var6.equals("ligar lampada")) {
-                     System.out.println("L\u00e2mpada ligada!");
-                     var5.println("L\u00e2mpada ligada!");
-                  } else if (var6.equals("temperatura")) {
-                     String var7 = "Temperatura: 25 \u00b0C";
-                     String var8 = "Umidade: 60%";
-                     var5.println(var7 + "\n" + var8);
-                  } else {
-                     var5.println("Comando inv\u00e1lido!");
+               try {
+                  var3.println(var1);
+                  StringBuilder var5 = new StringBuilder();
+
+                  while(true) {
+                     String var6;
+                     if ((var6 = var4.readLine()) == null) {
+                        var7 = var5.toString().trim();
+                        break;
+                     }
+
+                     var5.append(var6).append("\n");
                   }
-               }
-            } catch (Throwable var11) {
-               if (var3 != null) {
+               } catch (Throwable var11) {
                   try {
-                     var3.close();
+                     var4.close();
                   } catch (Throwable var10) {
                      var11.addSuppressed(var10);
                   }
+
+                  throw var11;
                }
 
-               throw var11;
+               var4.close();
+            } catch (Throwable var12) {
+               try {
+                  var3.close();
+               } catch (Throwable var9) {
+                  var12.addSuppressed(var9);
+               }
+
+               throw var12;
             }
 
-            if (var3 != null) {
-               var3.close();
-            }
-         } catch (Throwable var12) {
+            var3.close();
+         } catch (Throwable var13) {
             try {
                var2.close();
-            } catch (Throwable var9) {
-               var12.addSuppressed(var9);
+            } catch (Throwable var8) {
+               var13.addSuppressed(var8);
             }
 
-            throw var12;
+            throw var13;
          }
 
          var2.close();
-      } catch (IOException var13) {
-         System.err.println("Erro de comunica\u00e7\u00e3o: " + var13.getMessage());
+         return var7;
+      } catch (IOException var14) {
+         var14.printStackTrace();
+         return "Erro ao comunicar com o ESP: " + var14.getMessage();
+      }
+   }
+
+   public static void main(String[] var0) {
+      try {
+         Registry var1 = LocateRegistry.createRegistry(1099);
+         var1.rebind("ServidorRMI", new ServidorRMI());
+         System.out.println("Servidor RMI iniciado.");
+      } catch (Exception var2) {
+         var2.printStackTrace();
       }
 
    }
