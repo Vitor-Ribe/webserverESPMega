@@ -1,6 +1,6 @@
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
-public interface RemoteInterface extends Remote {
+public interface InterfaceServidor extends Remote {
     String enviarComando(String comando) throws RemoteException;
 }
