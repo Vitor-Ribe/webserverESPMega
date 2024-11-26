@@ -1,35 +1,47 @@
 import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.net.Socket;
-import java.io.PrintWriter;
+import java.io.*;
+import java.net.*;
 
-public class Server extends UnicastRemoteObject implements RemoteInterface {
-    protected Server() throws RemoteException {
+public class ServidorRMI extends UnicastRemoteObject implements InterfaceServidor {
+
+    private static final String ESP_IP = "192.168.98.36"; // Substitua pelo IP do ESP
+    private static final int ESP_PORT = 80;
+
+    protected ServidorRMI() throws RemoteException {
         super();
     }
 
     @Override
     public String enviarComando(String comando) throws RemoteException {
-        try {
-            // Conectando ao ESP (substitua pelo IP do ESP)
-            Socket socket = new Socket("192.168.100.189", 80);
-            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+        try (Socket socket = new Socket(ESP_IP, ESP_PORT);
+             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
 
-            // Enviando o comando
+            // Envia o comando para o ESP
             out.println(comando);
-            socket.close();
-            return "Comando enviado: " + comando;
-        } catch (Exception e) {
-            return "Erro ao enviar comando: " + e.getMessage();
+
+            // Recebe a resposta do ESP
+            StringBuilder resposta = new StringBuilder();
+            String linha;
+            while ((linha = in.readLine()) != null) {
+                resposta.append(linha).append("\n");
+            }
+            return resposta.toString().trim();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "Erro ao comunicar com o ESP: " + e.getMessage();
         }
     }
 
     public static void main(String[] args) {
         try {
-            java.rmi.registry.LocateRegistry.createRegistry(1099); // Porta padrão do RMI
-            Server server = new Server();
-            java.rmi.Naming.rebind("ServidorRMI", server);
-            System.out.println("Servidor RMI iniciado...");
+            Registry registry = LocateRegistry.createRegistry(1099); // Porta padrão RMI
+            registry.rebind("ServidorRMI", new ServidorRMI());
+            System.out.println("Servidor RMI iniciado.");
         } catch (Exception e) {
             e.printStackTrace();
         }
