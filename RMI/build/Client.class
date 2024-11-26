@@ -1,51 +1,32 @@
 // Source code is decompiled from a .class file using FernFlower decompiler.
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.util.Scanner;
 
-public class Client {
-   public Client() {
+public class ClienteRMI {
+   public ClienteRMI() {
    }
 
    public static void main(String[] var0) {
-      String var1 = "192.168.x.x";
-      short var2 = 8080;
-      String var3 = "";
-
       try {
-         Socket var4 = new Socket(var1, var2);
+         Registry var1 = LocateRegistry.getRegistry("localhost", 1099);
+         InterfaceServidor var2 = (InterfaceServidor)var1.lookup("ServidorRMI");
+         Scanner var3 = new Scanner(System.in);
+         System.out.println("Cliente RMI iniciado. Digite os comandos ('sair' para encerrar):");
 
-         try {
-            BufferedReader var5 = new BufferedReader(new InputStreamReader(var4.getInputStream()));
-            PrintWriter var6 = new PrintWriter(var4.getOutputStream(), true);
-            BufferedReader var7 = new BufferedReader(new InputStreamReader(System.in));
-
-            while(true) {
-               System.out.println("Digite o comando (ligar lampada / temperatura / sair):");
-               var3 = var7.readLine();
-               var6.println(var3);
-               if (var3.equals("sair")) {
-                  break;
-               }
-
-               String var8 = var5.readLine();
-               System.out.println("Resposta do servidor: " + var8);
-            }
-         } catch (Throwable var10) {
-            try {
-               var4.close();
-            } catch (Throwable var9) {
-               var10.addSuppressed(var9);
+         while(true) {
+            System.out.print("Comando: ");
+            String var4 = var3.nextLine();
+            if (var4.equalsIgnoreCase("sair")) {
+               var3.close();
+               break;
             }
 
-            throw var10;
+            String var5 = var2.enviarComando(var4);
+            System.out.println("Resposta do Servidor:\n" + var5);
          }
-
-         var4.close();
-      } catch (IOException var11) {
-         System.err.println("Erro de comunica\u00e7\u00e3o: " + var11.getMessage());
+      } catch (Exception var6) {
+         var6.printStackTrace();
       }
 
    }
