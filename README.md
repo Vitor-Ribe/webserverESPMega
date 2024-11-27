@@ -24,7 +24,27 @@ Ele executa comandos simples, que são enviados via protocolo TCP e acionam algu
 
 ## RMI
 - Cliente Java <-> Servidor Java <-> ESP8266 <-> MEGA2560 <-> Sensores
-  
+
+## Como implementar o projeto
+### Arduino IDE
+- Para utilização, baixe o [Arduino IDE](https://www.arduino.cc/en/software) no site oficial.
+- Adicione ao projeto, as placas esp8266: https://github.com/esp8266/Arduino/releases/download/2.3.0/package_esp8266com_index.json
+  e mega2560 (já inclusa no Arduino IDE).
+### Gravação do ESP  
+- Altere o código [esp.ino](https://github.com/Vitor-Ribe/webserverESPMega/blob/main/RPC/server/esp.ino), adicionando o SSID e Senha da sua rede local.
+- Suba o código para o ESP8266.
+- Abra o monitor serial do Arduino IDE e confira se o ESP foi inicializado e qual endereço IP lhe foi atribuído.
+### Gravação do Mega
+- Suba o código [mega.ino](https://github.com/Vitor-Ribe/webserverESPMega/blob/main/RPC/server/mega.ino) no Arduino Mega 2560.
+### RPC
+- Para a comunicação RPC, altere o [cliente python](https://github.com/Vitor-Ribe/webserverESPMega/blob/main/RPC/client/cliente.py) trocando o Host para o endereço IP do ESP.
+- Execute o programa cliente, digite e envie os comandos.
+### RMI
+- Para a comunicação RMI, Altere o código [Server.java](https://github.com/Vitor-Ribe/webserverESPMega/blob/main/RMI/src/Server.java) trocando a String "ESP_IP" para o endereço IP do ESP.
+- Para compilar: Abra um terminal na pasta do projeto, e execute o comando: `java *.java`.
+- Execute o ServidorRMI com `java ServidorRMI`. Deverá aparecer a mensagem: "Servidor RMI iniciado"
+- Abra um novo terminal na mesma pasta do projeto e execute: `java ClienteRMI`.
+- Seu cliente já pronto e aguardando comandos.
 ## Observações
 - O ESP consegue atuar como server e controlador ao mesmo tempo. Porém, dividir as tarefas com o Mega torna o projeto mais organizado. Além disso, o Mega possui mais pinos que podem ser usados para escalabilizar o projeto no futuro.
 - Ao usar pela primeira vez, deve-se conectar o Hardware num dispositivo com o Arduino IDE e usar o monitor serial para ver o IP que foi atribuído pelo roteador (você pode optar por um IP estático, mexendo em algumas funções da biblioteca WiFi do ESP8266). Após isso, é necessário alterar a variável "Host" no código em Python do cliente.
