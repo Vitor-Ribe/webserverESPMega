@@ -3,7 +3,7 @@ WiFiServer server(80);
 
 void setup() {
   Serial.begin(57600);  // Comunicação com o Mega
-  WiFi.begin("ssid", "senha");
+  WiFi.begin("ssid", "senha"); // coloque o SSID e a senha da sua rede local
   while (WiFi.status() != WL_CONNECTED) {
     Serial.print(".");
     delay(1000);
