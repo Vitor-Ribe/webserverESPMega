@@ -47,5 +47,5 @@ Ele executa comandos simples, que são enviados via protocolo TCP e acionam algu
 - Seu cliente já pronto e aguardando comandos.
 ## Observações
 - O ESP consegue atuar como server e controlador ao mesmo tempo. Porém, dividir as tarefas com o Mega torna o projeto mais organizado. Além disso, o Mega possui mais pinos que podem ser usados para escalabilizar o projeto no futuro.
-- Ao usar pela primeira vez, deve-se conectar o Hardware num dispositivo com o Arduino IDE e usar o monitor serial para ver o IP que foi atribuído pelo roteador (você pode optar por um IP estático, mexendo em algumas funções da biblioteca WiFi do ESP8266). Após isso, é necessário alterar a variável "Host" no código em Python do cliente.
+- Ao usar pela primeira vez, deve-se conectar o Hardware num dispositivo com o Arduino IDE e usar o monitor serial para ver o IP que foi atribuído pelo roteador (você pode optar por um IP estático, mexendo em algumas funções da biblioteca WiFi do ESP8266).
 
